@@ -1,0 +1,71 @@
+version: "3.5"
+services:
+  mongo:
+    image: mongo:4.2.6
+    container_name: mongodb-container
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - containers-network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express-container
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+    networks:
+      - containers-network
+    depends_on:
+      - mongo
+
+  redis:
+    image: redis:5.0.9
+    container_name: redis-container
+    restart: always
+    networks:
+      - containers-network
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog-container
+    ports:
+      - 8025:8025
+    networks:
+      - containers-network
+
+  java:
+    build: .
+    # image: openjdk:11
+    container_name: java-app-container
+    ports:
+      - 8080:8080
+    tty: true
+    working_dir: /usr/local/src
+    volumes:
+      - ./app_java_src:/usr/local/src
+    depends_on:
+      - mongo
+      - redis
+      - mailhog
+
+  python:
+    image: python:3.8.2
+    container_name: python-app-container
+    tty: true
+    working_dir: /usr/local/src
+    volumes:
+      - ./app_python_src:/usr/local/src
+    depends_on:
+      - mongo
+      - redis
+      - mailhog
+
+networks:
+  containers-network:
+    name: docker.internal
