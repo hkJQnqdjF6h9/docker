@@ -53,6 +53,8 @@ services:
       - mongo
       - redis
       - mailhog
+    networks:
+      - containers-network
 
   python:
     image: python:3.8.2
@@ -65,6 +67,8 @@ services:
       - mongo
       - redis
       - mailhog
+    networks:
+      - containers-network
 
 networks:
   containers-network:
